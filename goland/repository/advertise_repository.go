@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"./model"
+	"github.com/issey-shimizu/ad_serving_program/goland/model"
 )
 
 // ArticleList ...

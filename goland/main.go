@@ -21,7 +21,9 @@ var db *sqlx.DB
 var e = createMux()
 
 func main() {
+
 	db = connectDB()
+
 	e.GET("/impression/1", impression)
 
 	e.Logger.Fatal(e.Start(":8080"))
