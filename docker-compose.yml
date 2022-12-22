@@ -15,7 +15,7 @@ services:
       - db
     volumes:
       - type: bind
-        source: ./goland/src
+        source: ./goland/
         target: /go/src
     networks:
       - golang_test_network
