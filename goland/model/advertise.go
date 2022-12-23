@@ -2,12 +2,12 @@ package model
 
 import "time"
 
-// Article ...
-type Article struct {
+// Advertise ...
+type Advertise struct {
 	ID           int       `db:"id"`
-	name         string    `db:name`
-	image_url    string    `db:image_url`
-	redirect_url string    `db:redirect_url`
-	created_at   time.Time `db:created_at`
-	updated_at   time.Time `db:update_at`
+	Name         string    `db:"name"`
+	Image_url    string    `db:"image_url"`
+	Redirect_url string    `db:"redirect_url"`
+	Created_at   time.Time `db:"created_at"`
+	Updated_at   time.Time `db:"updated_at"`
 }

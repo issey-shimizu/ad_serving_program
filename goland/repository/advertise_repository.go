@@ -1,17 +1,31 @@
 package repository
 
 import (
-	"github.com/issey-shimizu/ad_serving_program/goland/model"
+	"log"
+	"src/model"
 )
 
 // ArticleList ...
-func ArticleList() ([]*model.Article, error) {
-	query := `SELECT * FROM articles;`
+func Adverdisplay() ([]*model.Advertise, error) {
+	query := `SELECT * FROM advertise;`
 
-	var articles []*model.Article
-	if err := db.Select(&articles, query); err != nil {
+	var advertise []*model.Advertise
+	if err := db.Select(&advertise, query); err != nil {
 		return nil, err
 	}
+	log.Println(advertise[0].ID)
 
-	return articles, nil
+	type Profile struct {
+		Name string
+		Age  int
+	}
+
+	p := []*Profile{
+		{"Tanaka", 31},
+		{"Suzuki", 46},
+	}
+	log.Println(p[0].Name)
+	log.Println(p[0].Name)
+
+	return advertise, nil
 }
