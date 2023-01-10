@@ -10,7 +10,6 @@ import (
 )
 
 func Impression(c echo.Context) error {
-
 	advertise, err := repository.Adverdisplay()
 	if err != nil {
 		log.Println(err.Error())

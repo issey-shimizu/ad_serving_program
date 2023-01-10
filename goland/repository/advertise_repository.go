@@ -1,16 +1,23 @@
 package repository
 
 import (
+	"database/sql"
 	"log"
 	"src/model"
 )
 
 // ArticleList ...
 func Adverdisplay() ([]*model.Advertise, error) {
-	query := `SELECT * FROM advertise;`
+	query1 := `UPDATE impression SET impression = impression + 1 WHERE id='1';`
+	var impression []*model.Impression
+	if err := db.Select(&impression, query1); err != nil {
+		return nil, err
+	}
+
+	query2 := `SELECT * FROM advertise;`
 
 	var advertise []*model.Advertise
-	if err := db.Select(&advertise, query); err != nil {
+	if err := db.Select(&advertise, query2); err != nil {
 		return nil, err
 	}
 	log.Println(advertise[0].ID)
@@ -28,4 +35,34 @@ func Adverdisplay() ([]*model.Advertise, error) {
 	log.Println(p[0].Name)
 
 	return advertise, nil
+}
+
+func CountUp(advertise *model.Advertise) (sql.Result, error) {
+
+	// IDが1の広告のimpressionをカウントアップするクエリ文字列を保存
+	query := `UPDATE impression SET impression = impression + 1 WHERE id='1';`
+
+	// トランザクションを開始します。
+	tx := db.MustBegin()
+
+	// クエリ文字列と引数で渡ってきた構造体を指定して、SQL を実行します。
+	// クエリ文字列内の :title, :body, :id には、
+	// 第 2 引数の Article 構造体の Title, Body, ID が bind されます。
+	// 構造体に db タグで指定した値が紐付けされます。
+	res, err := tx.NamedExec(query, advertise)
+
+	if err != nil {
+		// エラーが発生した場合はロールバックします。
+		tx.Rollback()
+
+		// エラーを返却します。
+		return nil, err
+	}
+
+	// エラーがない場合はコミットします。
+	tx.Commit()
+
+	// SQL の実行結果を返却します。
+	return res, nil
+
 }

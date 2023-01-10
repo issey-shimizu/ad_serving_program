@@ -33,3 +33,6 @@ updated_at datetime	NOT NULL
 
 # advertiseテーブルに仮データの追加
 insert into advertise values (1,'広告1','aaaa','aaaa','2019-10-04 15:25:07','2022-12-20 15:25:07')
+
+# implessionテーブルに仮データの追加
+insert into impression values (1,1,0,'2019-10-04 15:25:07','2022-12-20 15:25:07')
