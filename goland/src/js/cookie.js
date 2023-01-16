@@ -1,0 +1,1 @@
+onsole.log('/src/js/cookie.js');

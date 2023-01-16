@@ -32,6 +32,7 @@ func main() {
 func createMux() *echo.Echo {
 	e := echo.New()
 	e.Static("img", "img")
+	e.Static("/js", "src/js")
 	e.Use(middleware.Recover())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Gzip())

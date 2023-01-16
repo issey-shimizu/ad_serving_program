@@ -37,7 +37,7 @@ func Adverdisplay() ([]*model.Advertise, error) {
 	return advertise, nil
 }
 
-func CountUp(advertise *model.Advertise) (sql.Result, error) {
+func ClickIdSet(advertise *model.Advertise) (sql.Result, error) {
 
 	// IDが1の広告のimpressionをカウントアップするクエリ文字列を保存
 	query := `UPDATE impression SET impression = impression + 1 WHERE id='1';`
