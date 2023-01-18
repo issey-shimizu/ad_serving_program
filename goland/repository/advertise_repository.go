@@ -37,10 +37,10 @@ func Adverdisplay() ([]*model.Advertise, error) {
 	return advertise, nil
 }
 
-func ClickIdSet(advertise *model.Advertise) (sql.Result, error) {
+func ClickIdSet(click *model.Click) (sql.Result, error) {
 
 	// IDが1の広告のimpressionをカウントアップするクエリ文字列を保存
-	query := `UPDATE impression SET impression = impression + 1 WHERE id='1';`
+	query := `insert into impression values (1,1,0,'2019-10-04 15:25:07','2023-01-18 15:25:07');`
 
 	// トランザクションを開始します。
 	tx := db.MustBegin()
@@ -49,7 +49,7 @@ func ClickIdSet(advertise *model.Advertise) (sql.Result, error) {
 	// クエリ文字列内の :title, :body, :id には、
 	// 第 2 引数の Article 構造体の Title, Body, ID が bind されます。
 	// 構造体に db タグで指定した値が紐付けされます。
-	res, err := tx.NamedExec(query, advertise)
+	res, err := tx.NamedExec(query, click)
 
 	if err != nil {
 		// エラーが発生した場合はロールバックします。

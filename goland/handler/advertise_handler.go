@@ -28,8 +28,8 @@ func Impression(c echo.Context) error {
 	return render(c, "advertise/advertise_1.html", data)
 }
 
-func showCookie(c echo.Context) {
-	var advertise model.Advertise
+func ShowCookie(c echo.Context) error {
+	var click model.Click
 	cookie, err := c.Cookie("click_id")
 
 	if err != nil {
@@ -52,11 +52,15 @@ func showCookie(c echo.Context) {
 		http.SetCookie(c.Response().Writer, cookie)
 	}
 
-	res, err := repository.ClickIdSet(&advertise)
+	res, err := repository.ClickIdSet(&click)
 	if err != nil {
 		log.Println(err.Error())
 	}
+	log.Println(res)
 
-	//resのリダイレクト先を取得して、リダイえk
-	http.Redirect(c.Response().Writer, c.Request().Response.Request, "/", 302)
+	advertise, err := repository.Adverdisplay()
+
+	//resのリダイレクト先を取得して、リダイレクト
+	http.Redirect(c.Response().Writer, c.Request().Response.Request, advertise[0].Redirect_url, 200)
+	return nil
 }

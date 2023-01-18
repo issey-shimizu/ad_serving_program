@@ -31,8 +31,19 @@ updated_at datetime	NOT NULL
 );
 
 
+# impressionテーブルの作成
+CREATE TABLE click (
+id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+adverrtise_id int NOT NULL,
+user_code varchar(255) NOT NULL,
+created_at datetime	NOT NULL,
+updated_at datetime	NOT NULL
+);
+
+
+
 # advertiseテーブルに仮データの追加
-insert into advertise values (1,'広告1','aaaa','aaaa','2019-10-04 15:25:07','2022-12-20 15:25:07')
+insert into advertise values (1,'広告1','aaaa','aaaa','2019-10-04 15:25:07','2022-12-20 15:25:07');
 
 # implessionテーブルに仮データの追加
-insert into impression values (1,1,0,'2019-10-04 15:25:07','2022-12-20 15:25:07')
+insert into impression values (1,1,0,'2019-10-04 15:25:07','2022-12-20 15:25:07');
