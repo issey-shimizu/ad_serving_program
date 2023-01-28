@@ -24,8 +24,8 @@ func main() {
 	db = connectDB()
 	repository.SetDB(db)
 
-	e.GET("/impression/1", handler.Impression)
-	e.GET("/click/1", handler.ShowCookie)
+	e.GET("/impression/:id", handler.Impression)
+	e.GET("/click/:id", handler.ShowCookie)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

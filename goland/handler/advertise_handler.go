@@ -6,61 +6,75 @@ import (
 	"net/http"
 	"src/model"
 	"src/repository"
+	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
 )
 
+type Cookie struct {
+	Name  string
+	Value string
+}
+
 func Impression(c echo.Context) error {
-	advertise, err := repository.Adverdisplay()
+
+	id, _ := strconv.Atoi(c.Param("id"))
+	advertise, err := repository.Advertisedisplay(id)
 	if err != nil {
 		log.Println(err.Error())
 		return c.NoContent(http.StatusInternalServerError)
 	}
 
 	data := map[string]interface{}{
-		"Message":   "広告1のページです",
-		"Now":       time.Now(),
-		"Advertise": advertise, // 記事データをテンプレートエンジンに渡す
-		"URL":       advertise[0].Image_url,
+		"Message": "広告" + strconv.Itoa(id) + "のページです",
+		"Now":     time.Now(),
+		//"Advertise":    advertise, // 広告データをテンプレートエンジンに渡す
+		"image_url":    advertise[id-1].Image_url,
+		"redirect_url": advertise[id-1].Redirect_url,
 	}
-
-	return render(c, "advertise/advertise_1.html", data)
+	log.Println(advertise[id-1].Image_url)
+	return render(c, "advertise/advertise_"+strconv.Itoa(id)+".html", data)
 }
 
 func ShowCookie(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
 	var click model.Click
 	cookie, err := c.Cookie("click_id")
 
-	if err != nil {
-		log.Fatal("Cookie: ", err)
-	}
+	if cookie == nil {
 
-	if cookie.Value == "" {
+		click_Cookie := &http.Cookie{}
+
 		var alphabet = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 		random := make([]rune, 52)
 		for i := range random {
 			random[i] = alphabet[rand.Intn(len(alphabet))]
 		}
-		log.Println(random)
+		click_Cookie.Name = "click_id"
+		click_Cookie.Value = string(random)
 
-		cookie := &http.Cookie{
-			Name:  "click_id", // ここにcookieの名前を記述
-			Value: "random",   // ここにcookieの値を記述
-		}
-
-		http.SetCookie(c.Response().Writer, cookie)
+		http.SetCookie(c.Response().Writer, click_Cookie)
 	}
 
-	res, err := repository.ClickIdSet(&click)
+	/*
+		advertise, err := repository.ClickIdSet(&click, id)
+		if err != nil {
+			log.Println(err.Error())
+		}
+
+
+		//resのリダイレクト先を取得して、リダイレクト
+		http.Redirect(c.Response().Writer, c.Request(), advertise[id-1].Redirect_url, 200)
+		return nil
+	*/
+
+	res, err := repository.ClickIdSet(&click, id)
 	if err != nil {
 		log.Println(err.Error())
 	}
+
 	log.Println(res)
-
-	advertise, err := repository.Adverdisplay()
-
-	//resのリダイレクト先を取得して、リダイレクト
-	http.Redirect(c.Response().Writer, c.Request().Response.Request, advertise[0].Redirect_url, 200)
 	return nil
+
 }

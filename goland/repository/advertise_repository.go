@@ -2,46 +2,41 @@ package repository
 
 import (
 	"database/sql"
-	"log"
 	"src/model"
+	"time"
 )
 
 // ArticleList ...
-func Adverdisplay() ([]*model.Advertise, error) {
-	query1 := `UPDATE impression SET impression = impression + 1 WHERE id='1';`
+func Advertisedisplay(id int) ([]*model.Advertise, error) {
+
+	//広告のimpressionをカウントアップして保存
 	var impression []*model.Impression
-	if err := db.Select(&impression, query1); err != nil {
+	count_up := `UPDATE impression SET impression = impression + 1 WHERE id = id;`
+	if err := db.Select(&impression, count_up); err != nil {
 		return nil, err
 	}
 
-	query2 := `SELECT * FROM advertise;`
-
+	//広告情報を参照する
 	var advertise []*model.Advertise
-	if err := db.Select(&advertise, query2); err != nil {
+	advertise_reference := `SELECT * FROM advertise;`
+	if err := db.Select(&advertise, advertise_reference); err != nil {
 		return nil, err
 	}
-	log.Println(advertise[0].ID)
-
-	type Profile struct {
-		Name string
-		Age  int
-	}
-
-	p := []*Profile{
-		{"Tanaka", 31},
-		{"Suzuki", 46},
-	}
-	log.Println(p[0].Name)
-	log.Println(p[0].Name)
 
 	return advertise, nil
 }
 
-func ClickIdSet(click *model.Click) (sql.Result, error) {
+func ClickIdSet(click *model.Click, id int) (sql.Result, error) {
+	//func ClickIdSet(click *model.Click, id int) ([]*model.Advertise, error) {
 
-	// IDが1の広告のimpressionをカウントアップするクエリ文字列を保存
-	query := `insert into impression values (1,1,0,'2019-10-04 15:25:07','2023-01-18 15:25:07');`
+	now := time.Now()
+	click.Created_at = now
+	click.Updated_at = now
+	click.Id = id
+	// DBにレコードがない場合はINSERT、レコードがある場合はUPDATEでclick数をカウントアップ
+	query := `insert into click (id, adverrtise_id, user_code,click,created_at,updated_at) values (:id,:id,"aa",1,:created_at,:updated_at) on duplicate key update click = click + 1,updated_at = now();`
 
+	//query := `update click set click = click + 1 where id = 1;`
 	// トランザクションを開始します。
 	tx := db.MustBegin()
 
@@ -50,6 +45,7 @@ func ClickIdSet(click *model.Click) (sql.Result, error) {
 	// 第 2 引数の Article 構造体の Title, Body, ID が bind されます。
 	// 構造体に db タグで指定した値が紐付けされます。
 	res, err := tx.NamedExec(query, click)
+	//err := db.Select(&click, query)
 
 	if err != nil {
 		// エラーが発生した場合はロールバックします。
@@ -63,6 +59,17 @@ func ClickIdSet(click *model.Click) (sql.Result, error) {
 	tx.Commit()
 
 	// SQL の実行結果を返却します。
+	//return res, nil
+
+	/*広告情報を参照する
+	var advertise []*model.Advertise
+	advertise_reference := `SELECT * FROM advertise;`
+	if err := db.Select(&advertise, advertise_reference); err != nil {
+		return nil, err
+	}
+
+	return advertise, nil
+	*/
 	return res, nil
 
 }
