@@ -16,7 +16,7 @@ services:
     volumes:
       - type: bind
         source: ./goland/
-        target: /go/src
+        target: /go/ad_serving_program
     networks:
       - golang_test_network
 
@@ -39,9 +39,6 @@ services:
       - type: volume
         source: mysql_test_volume
         target: /var/lib/mysql
-      - type: bind
-        source: ./mysql/init
-        target: /docker-entrypoint-initdb.d
     networks:
       - golang_test_network
 

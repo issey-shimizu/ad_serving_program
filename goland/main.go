@@ -10,7 +10,7 @@ import (
 	"src/handler"
 	"src/repository"
 
-	_ "github.com/go-sql-driver/mysql" // Using MySQL driver
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 

@@ -1,5 +1,6 @@
 #!/bin/sh
 
+<< cmt
 CMD_MYSQL="mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE}"
 $CMD_MYSQL -e "create table article (
     id int(10)  AUTO_INCREMENT NOT NULL primary key,
@@ -51,3 +52,5 @@ insert into advertise values (2,'広告2','https://www.yahoo.co.jp','https://www
 insert into impression values (1,1,0,'2019-10-04 15:25:07','2022-12-20 15:25:07');
 
 insert into impression values (2,1,0,'2019-10-04 15:25:07','2022-12-20 15:25:07');
+
+cmt

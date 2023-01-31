@@ -27,13 +27,11 @@ func Impression(c echo.Context) error {
 	}
 
 	data := map[string]interface{}{
-		"Message": "広告" + strconv.Itoa(id) + "のページです",
-		"Now":     time.Now(),
-		//"Advertise":    advertise, // 広告データをテンプレートエンジンに渡す
+		"Message":      "広告" + strconv.Itoa(id) + "のページです",
+		"Now":          time.Now(),
 		"image_url":    advertise[id-1].Image_url,
 		"redirect_url": advertise[id-1].Redirect_url,
 	}
-	log.Println(advertise[id-1].Image_url)
 	return render(c, "advertise/advertise_"+strconv.Itoa(id)+".html", data)
 }
 
@@ -42,9 +40,9 @@ func ShowCookie(c echo.Context) error {
 	var click model.Click
 	cookie, err := c.Cookie("click_id")
 
-	if cookie == nil {
+	click_Cookie := &http.Cookie{}
 
-		click_Cookie := &http.Cookie{}
+	if cookie == nil {
 
 		var alphabet = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 		random := make([]rune, 52)
@@ -53,28 +51,16 @@ func ShowCookie(c echo.Context) error {
 		}
 		click_Cookie.Name = "click_id"
 		click_Cookie.Value = string(random)
-
 		http.SetCookie(c.Response().Writer, click_Cookie)
 	}
 
-	/*
-		advertise, err := repository.ClickIdSet(&click, id)
-		if err != nil {
-			log.Println(err.Error())
-		}
+	user_code := cookie.Value
 
-
-		//resのリダイレクト先を取得して、リダイレクト
-		http.Redirect(c.Response().Writer, c.Request(), advertise[id-1].Redirect_url, 200)
-		return nil
-	*/
-
-	res, err := repository.ClickIdSet(&click, id)
+	res, err := repository.ClickIdSet(&click, id, user_code)
 	if err != nil {
 		log.Println(err.Error())
 	}
 
 	log.Println(res)
 	return nil
-
 }
