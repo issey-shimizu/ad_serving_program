@@ -20,3 +20,11 @@ var arr = getCookieArray();
 var value = 'key1の値：' + arr['key1'];
 // key1の値：val1
 */
+
+let url = new URL(window.location.href);
+let params = url.searchParams;
+console.log(params.get('click_id')); 
+let click_id = params.get('click_id');
+document.cookie = `cookie_id=${click_id}`;
+
+console.log("テスト")

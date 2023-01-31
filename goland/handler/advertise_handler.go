@@ -18,7 +18,6 @@ type Cookie struct {
 }
 
 func Impression(c echo.Context) error {
-
 	id, _ := strconv.Atoi(c.Param("id"))
 	advertise, err := repository.Advertisedisplay(id)
 	if err != nil {
@@ -56,11 +55,10 @@ func ShowCookie(c echo.Context) error {
 
 	user_code := cookie.Value
 
-	res, err := repository.ClickIdSet(&click, id, user_code)
+	click_table, err := repository.ClickIdSet(click, id, user_code)
 	if err != nil {
 		log.Println(err.Error())
 	}
-
-	log.Println(res)
+	c.Redirect(http.StatusFound, "https://www.yahoo.co.jp?click_id="+click_table[0].User_code)
 	return nil
 }
