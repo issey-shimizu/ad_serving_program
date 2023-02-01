@@ -3,6 +3,7 @@ package repository
 import (
 	"log"
 	"src/model"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -55,7 +56,36 @@ func ClickIdSet(click model.Click, id int, user_code string) ([]*model.Click, er
 			return nil, err
 		}
 	*/
+	now := time.Now()
+	click.Created_at = now
+	click.Updated_at = now
+	click.Id = id
+	click.User_code = user_code
+
 	var click_table []*model.Click
+
+	log.Println(click.Created_at)
+	log.Println(click.Updated_at)
+	log.Println(click.Id)
+	log.Println(click.User_code)
+
+	query := `insert into click (id, adverrtise_id, user_code,click,created_at,updated_at) values (:id,:id,"aa",1,:created_at,:updated_at) on duplicate key update click = click + 1,updated_at = now();`
+
+	tx := db.MustBegin()
+
+	_, err := tx.NamedExec(query, click)
+
+	if err != nil {
+		// エラーが発生した場合はロールバックします。
+		tx.Rollback()
+
+		// エラーを返却します。
+		return nil, err
+	}
+
+	// エラーがない場合はコミットします。
+	tx.Commit()
+
 	click_reference := `SELECT user_code FROM click;`
 	if err := db.Select(&click_table, click_reference); err != nil {
 		return nil, err
