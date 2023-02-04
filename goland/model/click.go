@@ -7,7 +7,7 @@ type Click struct {
 	Id            int       `db:"id"`
 	Adverrtise_id int       `db:"adverrtise_id"`
 	User_code     string    `db:"user_code"`
-	click         int       `db:"click"`
+	Click         int       `db:"click"`
 	Created_at    time.Time `db:"created_at"`
 	Updated_at    time.Time `db:"updated_at"`
 }

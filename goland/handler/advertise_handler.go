@@ -59,6 +59,29 @@ func ShowCookie(c echo.Context) error {
 	if err != nil {
 		log.Println(err.Error())
 	}
-	c.Redirect(http.StatusFound, "https://www.yahoo.co.jp?click_id="+click_table[0].User_code)
+
+	advertise, err := repository.Advertisedisplay(id)
+	if err != nil {
+		log.Println(err.Error())
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	log.Println("click_tableの中身")
+	log.Println(click_table[0].User_code)
+	log.Println("advertiseの中身")
+	log.Println(advertise[0].Redirect_url)
+
+	c.Redirect(http.StatusFound, advertise[0].Redirect_url+"?advertise_id="+strconv.Itoa(id)+"&click_id="+click_table[0].User_code)
 	return nil
+}
+
+func Conversion(c echo.Context) error {
+	//v := c.Request().Response.Request.URL.Query()
+	//log.Println(v)
+	user_code := c.Request().URL.Query().Get("user_code")
+	id, _ := strconv.Atoi(c.Param("id"))
+	var click model.Click
+	var conversion model.Conversion
+	err := repository.Conversion_count(click, conversion, id, user_code)
+
+	return err
 }

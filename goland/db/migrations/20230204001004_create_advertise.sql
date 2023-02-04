@@ -9,7 +9,7 @@ CREATE TABLE advertise (
     updated_at datetime NOT NULL
 );
 
-insert into advertise values (1,'広告1','/img/img_1.jpeg','https://menta.work/member/dashboard',now(),now());
+insert into advertise values (1,'広告1','/img/img_1.jpeg','http://advertise1.s3-website-ap-northeast-1.amazonaws.com',now(),now());
 insert into advertise values (2,'広告2','/img/img_2.jpeg','https://www.yahoo.co.jp',now(),now());
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back

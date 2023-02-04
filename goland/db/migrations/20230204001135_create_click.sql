@@ -14,4 +14,4 @@ updated_at datetime	NOT NULL
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back
 
-DROP TABLE articles;
+DROP TABLE click;

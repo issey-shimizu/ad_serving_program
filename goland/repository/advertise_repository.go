@@ -28,34 +28,7 @@ func Advertisedisplay(id int) ([]*model.Advertise, error) {
 
 }
 func ClickIdSet(click model.Click, id int, user_code string) ([]*model.Click, error) {
-	//func ClickIdSet(click *model.Click, id int, user_code string) (sql.Result, error) {
-	//func Advertisedisplay(id int) ([]*model.Advertise, error) {
-	/*
-		now := time.Now()
-		click.Created_at = now
-		click.Updated_at = now
-		click.Id = id
-		click.User_code = user_code
 
-		// DBにレコードがない場合はINSERT、レコードがある場合はUPDATEでclick数をカウントアップ
-		//query := `insert into click (id, adverrtise_id, user_code,click,created_at,updated_at) values (:id,:id,:user_code,1,:created_at,:updated_at) on duplicate key update click = click + 1,updated_at = now();`
-
-
-			//DBにレコードがない場合はINSERT、レコードがある場合はUPDATEでclick数をカウントアップ
-			var click_table []*model.Click
-			count_up := `insert into click (id, adverrtise_id, user_code,click,created_at,updated_at) values (:id,:id,:user_code,1,:created_at,:updated_at) on duplicate key update click = click + 1,updated_at = now();`
-			if err := db.Select(click_table, count_up); err != nil {
-				return nil, err
-			}
-	*/
-
-	/*
-		var click_table []*model.Click
-		count_up := `insert into click (id, adverrtise_id, user_code,click,created_at,updated_at) values (:id,:id,:user_code,1,:created_at,:updated_at) on duplicate key update click = click + 1,updated_at = now();`
-		if err := db.Select(&click_table, count_up); err != nil {
-			return nil, err
-		}
-	*/
 	now := time.Now()
 	click.Created_at = now
 	click.Updated_at = now
@@ -64,12 +37,7 @@ func ClickIdSet(click model.Click, id int, user_code string) ([]*model.Click, er
 
 	var click_table []*model.Click
 
-	log.Println(click.Created_at)
-	log.Println(click.Updated_at)
-	log.Println(click.Id)
-	log.Println(click.User_code)
-
-	query := `insert into click (id, adverrtise_id, user_code,click,created_at,updated_at) values (:id,:id,"aa",1,:created_at,:updated_at) on duplicate key update click = click + 1,updated_at = now();`
+	query := `insert into click (id, adverrtise_id, user_code,click,created_at,updated_at) values (:id,:id,:user_code,1,:created_at,:updated_at) on duplicate key update click = click + 1,updated_at = now();`
 
 	tx := db.MustBegin()
 
@@ -90,31 +58,49 @@ func ClickIdSet(click model.Click, id int, user_code string) ([]*model.Click, er
 	if err := db.Select(&click_table, click_reference); err != nil {
 		return nil, err
 	}
+	log.Println(click_table[0])
 	return click_table, nil
-	/*
-		//clickテーブルの情報を取得
-		click_reference := `SELECT * FROM click;`
-		if err := db.Select(&click_table, click_reference); err != nil {
-			return nil, err
-		}
 
+}
 
+func Conversion_count(click model.Click, conversion model.Conversion, id int, user_code string) error {
 
-		/*
-			tx := db.MustBegin()
-				res, err := tx.NamedExec(query, click)
+	//Clickテーブルのuser_codeに値が格納されているか確認する
+	//上記の結果に応じて分岐。レコードが存在していればinsert
 
-				if err != nil {
-					// エラーが発生した場合はロールバックします。
-					tx.Rollback()
+	now := time.Now()
+	click.Created_at = now
+	click.Updated_at = now
+	click.Id = id
+	click.User_code = user_code
 
-					// エラーを返却します。
-					return nil, err
-				}
+	conversion.Created_at = now
+	conversion.Updated_at = now
+	conversion.Id = id
+	conversion.User_code = user_code
 
-				// エラーがない場合はコミットします。
-				tx.Commit()
-				return res, nil
-	*/
+	query1 := `select * from click where user_code = :user_code;`
+	query2 := `insert into conversion (id, adverrtise_id, user_code,conversion,created_at,updated_at) values (:id,:id,:user_code,1,:created_at,:updated_at) on duplicate key update conversion = conversion + 1,updated_at = now();`
+
+	tx := db.MustBegin()
+
+	_, err := tx.NamedExec(query1, click)
+
+	if err != nil {
+		// エラーが発生した場合はロールバックします。
+		tx.Rollback()
+
+		// エラーを返却します。
+		return err
+	} else {
+
+		_, err := tx.NamedExec(query2, conversion)
+		log.Println(err)
+	}
+
+	// エラーがない場合はコミットします。
+	tx.Commit()
+
+	return nil
 
 }

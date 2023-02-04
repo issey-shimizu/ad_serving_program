@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/labstack/echo/v4"
@@ -26,6 +27,7 @@ func main() {
 
 	e.GET("/impression/:id", handler.Impression)
 	e.GET("/click/:id", handler.ShowCookie)
+	e.GET("/conversion/:id", handler.Conversion)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
@@ -38,6 +40,11 @@ func createMux() *echo.Echo {
 	e.Use(middleware.Recover())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Gzip())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://advertise1.s3-website-ap-northeast-1.amazonaws.com:80/"},
+		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
+	}))
+	e.Use(middleware.CORS())
 
 	return e
 }
