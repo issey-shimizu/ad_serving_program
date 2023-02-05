@@ -6,7 +6,7 @@
 docker-compose up -d 
 
 2.以下コマンドを実行しgoコンテナにログインする
-docker compose exec
+docker compose exec go sh
 
 3.以下コマンドを実行し各テーブルの作成を行う
 goose up
