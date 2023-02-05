@@ -10,8 +10,6 @@ $CMD_MYSQL -e "create table article (
 $CMD_MYSQL -e  "insert into article values (1, '記事1', '記事1です。');"
 $CMD_MYSQL -e  "insert into article values (2, '記事2', '記事2です。');"
 
-
-
 # advertiseテーブルの作成
 CREATE TABLE advertise (
     id int NOT NULL NOT NULL AUTO_INCREMENT PRIMARY KEY,
