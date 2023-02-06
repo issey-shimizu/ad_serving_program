@@ -42,6 +42,16 @@ services:
     networks:
       - golang_test_network
 
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+    volumes:
+      - "./data/redis:/data"
+      - "./redis.conf:/etc/redis.conf"
+    networks:
+      - golang_test_network
+
 volumes:
   mysql_test_volume:
     name: mysql_test_volume
