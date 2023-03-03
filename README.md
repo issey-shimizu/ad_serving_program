@@ -3,10 +3,10 @@
 
 ## プログラム起動までの手順
 
-###1.以下コマンドを実行しネットワークを作成する。
-###docker network create golang_test_network
+1.以下コマンドを実行しネットワークを作成する。
+docker network create golang_test_network
 
-###2.以下コマンドを実行しコンテナを起動する
+2.以下コマンドを実行しコンテナを起動する
 ###docker-compose up -d 
 
 ###3.以下コマンドを実行しgoコンテナにログインする

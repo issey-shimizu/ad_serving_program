@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>広告配信プログラム</title>
+
+    
+    <script type="text/javascript">
+    function frameClick() {
+    let r = document.cookie.split(';');
+    param = r[0].split('=');
+    click_id = param[1];
+  
+    document.location.href = `http://localhost:8080/conversion/1?adverrtise_id=1&user_code=${click_id}`;
+    }
+    </script>
+  </head>
+
+  <body>
+    <h1>遷移先ページ</h1>
+    <script src="http://localhost:8080/js/cookie.js"></script>
+    <button class="favorite styled" type="button" onclick="frameClick();">
+    会員登録
+    </button>
+  </body>
+</html>
+
+
