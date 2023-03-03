@@ -1,106 +1,137 @@
 package repository
 
 import (
+	"fmt"
 	"log"
 	"src/model"
+	"strconv"
 	"time"
 
+	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func Advertisedisplay(id int) ([]*model.Advertise, error) {
-
+func Count_up(id int) error {
 	//impressionテーブルのimpressionをカウントアップ＋更新日時を最新にして保存
 	var impression []*model.Impression
 	count_up := `UPDATE impression SET impression = impression + 1, updated_at = now() WHERE id = id;`
 	if err := db.Select(&impression, count_up); err != nil {
-		return nil, err
+		return err
 	}
-
-	//advertiseテーブルの情報を取得
-	var advertise []*model.Advertise
-	advertise_reference := `SELECT * FROM advertise;`
-	if err := db.Select(&advertise, advertise_reference); err != nil {
-		return nil, err
-	}
-	log.Println(advertise)
-	return advertise, nil
-
+	return nil
 }
-func ClickIdSet(click model.Click, id int, user_code string) ([]*model.Click, error) {
 
-	now := time.Now()
-	click.Created_at = now
-	click.Updated_at = now
-	click.Id = id
-	click.User_code = user_code
+func Advertisedisplay(id int) ([]string, error) {
 
-	var click_table []*model.Click
+	client := redis.NewClient(&redis.Options{
+		Addr:     "redis:6379",
+		Password: "",
+		DB:       0,
+	})
 
-	query := `insert into click (id, adverrtise_id, user_code,click,created_at,updated_at) values (:id,:id,:user_code,1,:created_at,:updated_at) on duplicate key update click = click + 1,updated_at = now();`
+	key := "advertise"
 
-	tx := db.MustBegin()
-
-	_, err := tx.NamedExec(query, click)
-
+	//keyがadvetiseの情報を取得
+	advertise, err := client.HVals(key).Result()
 	if err != nil {
-		// エラーが発生した場合はロールバックします。
-		tx.Rollback()
-
-		// エラーを返却します。
-		return nil, err
+		fmt.Println("redis.Client.HGet Error:", err)
 	}
 
-	// エラーがない場合はコミットします。
-	tx.Commit()
-
-	click_reference := `SELECT user_code FROM click;`
-	if err := db.Select(&click_table, click_reference); err != nil {
-		return nil, err
-	}
-	log.Println(click_table[0])
-	return click_table, nil
-
+	return advertise, nil
 }
 
-func Conversion_count(click model.Click, conversion model.Conversion, id int, user_code string) error {
-
-	//Clickテーブルのuser_codeに値が格納されているか確認する
-	//上記の結果に応じて分岐。レコードが存在していればinsert
+func ClickIdSet(click model.Click, id int, user_code string) ([]string, error) {
 
 	now := time.Now()
-	click.Created_at = now
-	click.Updated_at = now
-	click.Id = id
-	click.User_code = user_code
 
+	client := redis.NewClient(&redis.Options{
+		Addr:     "redis:6379",
+		Password: "",
+		DB:       0,
+	})
+
+	key := "click"
+
+	//keyがclickの情報が存在するか否かによって分岐
+	val, err := client.HVals(key).Result()
+	if len(val) == 0 {
+		//新規で値を追加
+		keys := [6]string{"id", "adverrtise_id", "user_code", "click", "created_at", "updated_at"}
+		values := [6]string{strconv.Itoa(id), strconv.Itoa(id), user_code, "1", now.Format("2006-01-02 03:04:05"), now.Format("2006-01-02 03:04:05")}
+		for i := 0; i < 6; i++ {
+			client.HSet(key, keys[i], values[i])
+		}
+
+	} else if len(val) != 0 {
+		//clickの値をカウントアップし、updated_atの値を最新にする
+		click, err := client.HGet(key, "click").Result()
+		if err != nil {
+			log.Println(err)
+		}
+
+		click_count, _ := strconv.Atoi(click)
+
+		client.HSet(key, "click", click_count+1)
+		client.HSet(key, "updated_at", now.Format("2006-01-02 03:04:05"))
+
+	} else {
+		log.Println(err)
+	}
+
+	click_information, err := client.HVals(key).Result()
+	if err != nil {
+		fmt.Println("redis.Client.HVals Error:", err)
+	}
+
+	return click_information, err
+}
+
+func Conversion_count(conversion model.Conversion, id int, user_code string) error {
+
+	now := time.Now()
 	conversion.Created_at = now
 	conversion.Updated_at = now
 	conversion.Id = id
 	conversion.User_code = user_code
 
-	query1 := `select * from click where user_code = :user_code;`
-	query2 := `insert into conversion (id, adverrtise_id, user_code,conversion,created_at,updated_at) values (:id,:id,:user_code,1,:created_at,:updated_at) on duplicate key update conversion = conversion + 1,updated_at = now();`
+	client := redis.NewClient(&redis.Options{
+		Addr:     "redis:6379",
+		Password: "",
+		DB:       0,
+	})
 
-	tx := db.MustBegin()
+	key := "click"
 
-	_, err := tx.NamedExec(query1, click)
-
+	val, err := client.HGet(key, "user_code").Result()
 	if err != nil {
-		// エラーが発生した場合はロールバックします。
-		tx.Rollback()
-
-		// エラーを返却します。
-		return err
-	} else {
-
-		_, err := tx.NamedExec(query2, conversion)
 		log.Println(err)
 	}
 
-	// エラーがない場合はコミットします。
-	tx.Commit()
+	if len(val) == 0 {
+		return nil
+	} else {
+		query := `insert into conversion (id, adverrtise_id, user_code,conversion,created_at,updated_at) values (:id,:id,:user_code,1,:created_at,:updated_at) on duplicate key update conversion = conversion + 1,updated_at = now();`
 
+		tx := db.MustBegin()
+		_, err := tx.NamedExec(query, conversion)
+		if err != nil {
+			log.Println(err)
+		}
+
+		tx.Commit()
+	}
+
+	if user_code == val {
+		query := `insert into conversion (id, adverrtise_id, user_code,conversion,created_at,updated_at) values (:id,:id,:user_code,1,:created_at,:updated_at) on duplicate key update conversion = conversion + 1,updated_at = now();`
+
+		tx := db.MustBegin()
+		_, err := tx.NamedExec(query, conversion)
+		if err != nil {
+			log.Println(err)
+		}
+		tx.Commit()
+	} else {
+		return nil
+	}
 	return nil
-
 }
